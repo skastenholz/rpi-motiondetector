@@ -1,0 +1,20 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+before_script:
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
+  - sudo update-binfmts --display qemu-arm
+
+script:
+  - docker build -t $TRAVIS_REPO_SLUG .
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push $TRAVIS_REPO_SLUG;
+fi
